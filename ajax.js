@@ -19,7 +19,7 @@ function getData(callback) {
                     }
                     return newData;
                 })
-                
+                updateTime = new Date().getTime()
                 localStorage.setItem("pmdata", JSON.stringify(pmdata));
                 localStorage.setItem('time', new Date().getTime());
                 callback()

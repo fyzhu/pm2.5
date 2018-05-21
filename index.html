@@ -54,6 +54,7 @@
             return res;
 
         };
+
         const now = new Date().getTime();
         const passTime = (now - localStorage.getItem("time"))/1000/60/60;
         if (localStorage.getItem("pmdata") && localStorage.getItem("time") && passTime<1) {
@@ -75,7 +76,7 @@
             option = {
                 title: {
                     text: '北京主要监测点空气质量',
-                    subtext: 'data from PM25.in',
+ subtext: `data from PM25.in, update from ${new Date(parseInt(updateTime)).toLocaleString()}`,
                     sublink: 'http://www.pm25.in',
                     left: 'center',
                     textStyle: {
@@ -94,25 +95,7 @@
                     textStyle: {
                         color: '#fff'
                     }
-                },
-                // geo: {
-                //     map: 'china',
-                //     label: {
-                //         emphasis: {
-                //             show: false
-                //         }
-                //     },
-                //     roam: true,
-                //     itemStyle: {
-                //         normal: {
-                //             areaColor: '#323c48',
-                //             borderColor: '#111'
-                //         },
-                //         emphasis: {
-                //             areaColor: '#2a333d'
-                //         }
-                //     }
-                // },
+                },                
                 bmap: {
                     center: [116.3, 39.9],
                     zoom: 8,
