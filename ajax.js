@@ -21,28 +21,40 @@ function getData(callback) {
                 })
                 
                 localStorage.setItem("pmdata", JSON.stringify(pmdata));
-                
+                localStorage.setItem('time', new Date().getTime());
                 callback()
             }
             // return data;
+            console.log('网站数据更新于:' + new Date());
             console.log(pmdata)
 
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
 
             console.log('error:' + textStatus);
-            getData2(callback2);
-            function getData2(callback2) {
-                $.getJSON("pmdata.json", function (data) {
-                    pmdata = data;
-                    console.log(data);
-                    callback2()
-                })
-            }
-            function callback2() { 
-                // alert('test')               
+            //获取网络数据异常，有本地缓存使用缓存，没有缓存使用测试数据
+            if (localStorage.getItem("pmdata") && localStorage.getItem("time") ) {
+                pmdata = localStorage.getItem("pmdata")
+                pmdata = JSON.parse(pmdata)
+                updateTime = localStorage.getItem('time')               
+                                
+                console.log('网站获取数据异常，缓存数据更新于:' + new Date(parseInt(updateTime)));
+                console.log('从localStorage读取数据', pmdata);
                 callback()
-                console.log('pmdata',pmdata);
+            } else {            
+                getData2(callback2);
+                function getData2(callback2) {
+                    $.getJSON("pmdata.json", function (data) {
+                        pmdata = data;
+                        // console.log(data);
+                        callback2()
+                    })
+                }
+                function callback2() { 
+                    // alert('test')               
+                    callback()
+                    console.log('获取数据异常，现在显示的为测试数据：',pmdata);
+                }
             }
             
         }
