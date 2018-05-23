@@ -10,7 +10,7 @@ function getData(callback) {
         jsonp: 'callback',
         jsonpCallback: 'jsonhandle',
         success: function (sdata) {
-            // console.log(pmdata);
+            console.log(sdata);
             if ('function' == typeof (callback)) {
                 pmdata = sdata.map(function (cur, index, arr) {
                     let newData = {
