@@ -54,7 +54,7 @@
             return res;
 
         };
-
+        let updateTime
         const now = new Date().getTime();
         const passTime = (now - localStorage.getItem("time"))/1000/60/60;
         if (localStorage.getItem("pmdata") && localStorage.getItem("time") && passTime<1) {
@@ -73,10 +73,16 @@
 
         function callback() {
             console.log('执行callback');
+            let subtext = ''
+            if(!updateTime){
+                subtext = 'data from PM25.in, 获取数据失败，显示的为测试数据'
+            }else{
+                subtext = `data from PM25.in, update from ${new Date(parseInt(updateTime)).toLocaleString()}`
+            }
             option = {
                 title: {
                     text: '北京主要监测点空气质量',
- subtext: `data from PM25.in, update from ${new Date(parseInt(updateTime)).toLocaleString()}`,
+                    subtext: subtext,
                     sublink: 'http://www.pm25.in',
                     left: 'center',
                     textStyle: {
