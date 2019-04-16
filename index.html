@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body style="height: 100%; margin: 0">
+    <div id="container" style="height: 100%"></div>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+    <script src="http://libs.baidu.com/jquery/1.9.1/jquery.js"></script>
+    <script src="./ajax.js"></script>
+    <script type="text/javascript">
+        var dom = document.getElementById("container");
+        var myChart = echarts.init(dom);
+        var app = {};
+        option = null;
+        var pmdata = [];
+
+        // console.log(pmdata);
+        var geoCoordMap = {
+            "万寿西宫": [116.3677, 39.88022],
+            "定陵": [116.2234, 40.29596],
+            "东四": [116.4246, 39.93041],
+            "天坛": [116.4067, 39.88241],
+            "农展馆": [116.4647, 39.94146],
+            "官园": [116.4647, 39.94146],
+            "海淀区万柳": [116.2982, 39.95975],
+            "顺义新城": [116.6605, 39.89914],
+            "怀柔镇": [116.6338, 40.31929],
+            "昌平镇": [116.2202, 40.22293],
+            "奥体中心": [116.399478, 39.983648],
+            "古城": [116.193334, 39.911629],
+            "null": [119.46, 35.42]
+        };
+
+        var convertData = function (data) {
+            var res = [];
+            for (var i = 0; i < data.length; i++) {
+                var geoCoord = geoCoordMap[data[i].name];
+                if (geoCoord) {
+                    res.push(geoCoord.concat(data[i].value));
+                }
+            }
+            // console.log('convertData,', res);
+            return res;
+
+        };
+        let updateTime
+        const now = new Date().getTime();
+        const passTime = (now - localStorage.getItem("time"))/1000/60/60;
+        if (localStorage.getItem("pmdata") && localStorage.getItem("time") && passTime<1) {
+            pmdata = localStorage.getItem("pmdata")
+            pmdata = JSON.parse(pmdata)
+            updateTime = localStorage.getItem('time')
+            // updateTime = 
+            console.log('网站数据更新于:' + new Date(parseInt(updateTime)));
+            
+            console.log('从localStorage读取数据', pmdata);
+            callback()
+        } else {
+            console.log('passTime',passTime)
+            getData(callback)
+        }
+
+        function callback() {
+            console.log('执行callback');
+            let subtext = ''
+            if(!updateTime){
+                subtext = 'data from PM25.in, 获取数据失败，显示的为测试数据'
+            }else{
+                subtext = `data from PM25.in, update from ${new Date(parseInt(updateTime)).toLocaleString()}`
+            }
+            option = {
+                title: {
+                    text: '北京主要监测点空气质量',
+                    subtext: subtext,
+                    sublink: 'http://www.pm25.in',
+                    left: 'center',
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+                // backgroundColor: '#404a59',
+                visualMap: {
+                    min: 0,
+                    max: 500,
+                    type: 'continuous',
+                    splitNumber: 5,
+                    inRange: {
+                        color: ['#d94e5d', '#eac736', '#50a3ba'].reverse()
+                    },
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },                
+                bmap: {
+                    center: [116.3, 39.9],
+                    zoom: 10,
+                    roam: true,
+                    mapStyle: {
+                        styleJson: [{
+                                "featureType": "water",
+                                "elementType": "all",
+                                "stylers": {
+                                    "color": "#044161"
+                                }
+                            },
+                            {
+                                "featureType": "land",
+                                "elementType": "all",
+                                "stylers": {
+                                    "color": "#004981"
+                                }
+                            },
+                            {
+                                "featureType": "boundary",
+                                "elementType": "geometry",
+                                "stylers": {
+                                    "color": "#064f85"
+                                }
+                            },
+                            {
+                                "featureType": "railway",
+                                "elementType": "all",
+                                "stylers": {
+                                    "visibility": "off"
+                                }
+                            },
+                            {
+                                "featureType": "highway",
+                                "elementType": "geometry",
+                                "stylers": {
+                                    "color": "#004981"
+                                }
+                            },
+                            {
+                                "featureType": "highway",
+                                "elementType": "geometry.fill",
+                                "stylers": {
+                                    "color": "#005b96",
+                                    "lightness": 1
+                                }
+                            },
+                            {
+                                "featureType": "highway",
+                                "elementType": "labels",
+                                "stylers": {
+                                    "visibility": "off"
+                                }
+                            },
+                            {
+                                "featureType": "arterial",
+                                "elementType": "geometry",
+                                "stylers": {
+                                    "color": "#004981"
+                                }
+                            },
+                            {
+                                "featureType": "arterial",
+                                "elementType": "geometry.fill",
+                                "stylers": {
+                                    "color": "#00508b"
+                                }
+                            },
+                            {
+                                "featureType": "poi",
+                                "elementType": "all",
+                                "stylers": {
+                                    "visibility": "off"
+                                }
+                            },
+                            {
+                                "featureType": "green",
+                                "elementType": "all",
+                                "stylers": {
+                                    "color": "#056197",
+                                    "visibility": "off"
+                                }
+                            },
+                            {
+                                "featureType": "subway",
+                                "elementType": "all",
+                                "stylers": {
+                                    "visibility": "off"
+                                }
+                            },
+                            {
+                                "featureType": "manmade",
+                                "elementType": "all",
+                                "stylers": {
+                                    "visibility": "off"
+                                }
+                            },
+                            {
+                                "featureType": "local",
+                                "elementType": "all",
+                                "stylers": {
+                                    "visibility": "off"
+                                }
+                            },
+                            {
+                                "featureType": "arterial",
+                                "elementType": "labels",
+                                "stylers": {
+                                    "visibility": "off"
+                                }
+                            },
+                            {
+                                "featureType": "boundary",
+                                "elementType": "geometry.fill",
+                                "stylers": {
+                                    "color": "#029fd4"
+                                }
+                            },
+                            {
+                                "featureType": "building",
+                                "elementType": "all",
+                                "stylers": {
+                                    "color": "#1a5787"
+                                }
+                            },
+                            {
+                                "featureType": "label",
+                                "elementType": "all",
+                                "stylers": {
+                                    "visibility": "off"
+                                }
+                            }
+                        ]
+                    }
+                },
+                series: [{
+                    name: 'AQI',
+                    type: 'heatmap',
+                    coordinateSystem: 'bmap',
+                    data: convertData(pmdata)
+                }]
+            };;            
+
+            if (option && typeof option === "object") {
+                myChart.setOption(option, true);
+            }
+        }
+    </script>
+</body>
+
+</html>
